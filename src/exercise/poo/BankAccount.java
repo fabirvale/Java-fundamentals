@@ -4,7 +4,7 @@ public class BankAccount {
 	private String name;
 	private Integer numberAccount;
 	private Double initialBalance;
-	private Double balance;
+	protected Double balance;
 	
 	public BankAccount(String name, Integer numberAccount, Double initialBalance) {
 		this.name = name;
@@ -38,9 +38,8 @@ public class BankAccount {
 	public Double getBalance() {
 		return balance;
 	}
-
-
-	public Double deposit(Double deposit) {
+	
+		public Double deposit(Double deposit) {
 		   return balance += deposit;		
 	}
     
@@ -48,12 +47,12 @@ public class BankAccount {
 		return balance -= withdraw;		
 	}
 
-	@Override
-	public String toString() {
-		return " Account holder: " + name 
-				+ "\n Number account: " + numberAccount 
-				+ "\n Initial balance: $" + String.format("%.2f",initialBalance);
+	public String getAccountReport(double lastDeposit, double lastWithdraw) {
+	    return " Account holder: " + name
+	            + "\n Number account: " + numberAccount
+	            + "\n Initial balance: $" + String.format("%.2f", initialBalance)
+	            + "\n Last Deposit: $" + String.format("%.2f", lastDeposit)
+	            + "\n Last Withdraw: $" + String.format("%.2f", lastWithdraw)
+	            + "\n--------------------------\n Current balance: $" + String.format("%.2f", balance);
 	}
-
-
 }

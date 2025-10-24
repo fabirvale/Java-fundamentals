@@ -4,6 +4,7 @@ import java.util.Locale;
 import java.util.Scanner;
 
 import exercise.poo.BankAccount;
+import exercise.poo.SpecialAccount;
 
 public class BankAccountTest {
 
@@ -21,8 +22,16 @@ public class BankAccountTest {
 		int numberAccount = sc.nextInt();
 		System.out.print("Inform the initial balance: ");
 		double initialBalance = sc.nextDouble();
+		System.out.print("Inform the credit limit (0 if normal account): ");
+		double extraLimit = sc.nextDouble();
+		
+		 BankAccount account;
 
-		BankAccount bankAccount = new BankAccount(name, numberAccount, initialBalance);
+	     if (extraLimit > 0) {
+	            account = new SpecialAccount(name, numberAccount, initialBalance, extraLimit);
+	     } else {
+	            account = new BankAccount(name, numberAccount, initialBalance);
+	      }
 
 		System.out.println();
 		System.out.println("====================");
@@ -30,38 +39,33 @@ public class BankAccountTest {
 		System.out.println("====================");
 
 		System.out.print("Deposit amount:");
-		double deposit = sc.nextDouble();
-		if (deposit <= 0) {
+		double lastDeposit = sc.nextDouble();
+		
+		if (lastDeposit <= 0) {
 			  System.out.println("Invalid deposit.");
-        }
+    }
 		else {
-		  bankAccount.deposit(deposit);
+		 account.deposit(lastDeposit);
 		} 
-
+		
 		System.out.print("Withdraw amount:");
-		double withdraw = sc.nextDouble();
-
-		if (bankAccount.getBalance() < withdraw) {
+		double lastWithDraw = sc.nextDouble();
+				
+		if ((account.getBalance() + extraLimit) < lastWithDraw) {
 			System.out.println();
 			System.out.println("Insufficient balance.\n");
 			System.out.println("-----------------------");
-			System.out.println("Current balance: $" + String.format("%.2f", bankAccount.getBalance()));
+			System.out.println("Current balance: $" + String.format("%.2f", account.getBalance()));
 
 		} else {
-			bankAccount.withdraw(withdraw);
-			System.out.println();
-			System.out.println("========================");
-			System.out.println("=====Account Report=====");
-			System.out.println("========================");
+				account.withdraw(lastWithDraw);	
+				System.out.println();
+				System.out.println("========================");
+				System.out.println("=====Account Report=====");
+				System.out.println("========================");
+				System.out.println(account.getAccountReport(lastDeposit, lastWithDraw));
 
-			System.out.println(bankAccount.toString() 
-					           + "\n Deposit: $" + String.format("%.2f", deposit)
-					           + "\n WithDraw: $" + String.format("%.2f", withdraw));
-	
-			System.out.println();
-			System.out.println("-----------------------");
-			System.out.println("Current balance: $" + String.format("%.2f", bankAccount.getBalance()));
-		}
+			 }
 		sc.close();
 	}
 
