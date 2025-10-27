@@ -5,11 +5,13 @@ public class Employee {
 	private String name;
 	private Double grossSalary;
 	private Double valueDiscount;
+	private String position;	
 	
-	
-	public Employee(String name, Double grossSalary) {
+	public Employee(String name, Double grossSalary, Double valueDiscount, String position) {
 		this.name = name;
 		this.grossSalary = grossSalary;
+		setvalueDiscount(valueDiscount); // valid the discount
+		this.position = position;
 	}
 	public String getName() {
 		return name;
@@ -24,24 +26,36 @@ public class Employee {
 		this.grossSalary = grossSalary;
 	}
 		
-	public Double getValueDiscount() {
-		return valueDiscount;
-	}
-	public void setValueDiscount(Double valueDiscount) {
-		this.valueDiscount = valueDiscount;
+	public String getPosition () {
+		return position;
 	}
 	
-	public Double calculateNetSalary(Double discount) {
-		if (discount < 0 || discount > 100) {
-	        throw new IllegalArgumentException("Invalid discount percentage.");
-	    }
-	    valueDiscount = grossSalary * (discount / 100);
-		return grossSalary - valueDiscount;
+	public void setPosition(String position) {
+		this.position = position;
 	}
+	
+	public Double getvalueDiscount () {
+		return valueDiscount;
+	}
+	
+	public void setvalueDiscount(Double valueDiscount) {
+		if (valueDiscount < 0 || valueDiscount > 100) {
+            throw new IllegalArgumentException("Discount must be between 0 and 100%");
+        }
+        this.valueDiscount = valueDiscount;
+	}
+	
+	
+	public Double calculateNetSalary() {
+	 	return grossSalary - (grossSalary * (valueDiscount/100));
+	}
+	
 	@Override
 	public String toString() {
 		return " Employee: " + name 
-				+ "\n Gross Salary: $" + String.format("%.2f", grossSalary);
+				+ "\n Position: " + position
+				+ "\n Gross Salary $: " + String.format("%.2f", grossSalary)
+		        + "\n Value Discount(%): " + valueDiscount;
 	}
     
 	
