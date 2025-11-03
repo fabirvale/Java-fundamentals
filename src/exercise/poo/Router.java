@@ -49,7 +49,11 @@ public class Router extends Equipment {
 		return (super.getEnergyConsumption() * 24) / 1000;
 	}
     
-
+	@Override
+	public String getDetails() {
+		    return String.format("WiFi: %s | Mbps: %d", getSuportWifi(), getMbps());
+	}
+		
 	@Override
 	public String toString() {
 		return super.toString() 

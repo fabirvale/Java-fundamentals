@@ -57,6 +57,11 @@ public class Server extends Equipment{
 	public Double calculateConsumption() {
 		return (super.getEnergyConsumption() * 24) / 1000;
 	}
+	
+	@Override
+	public String getDetails() {
+	    return String.format("OS: %s | RAM: %d GB | Disk: %d GB", opSystem, ramCapacity, diskCapacity);
+	}
 
 	@Override
 	public String toString() {

@@ -57,6 +57,7 @@ public abstract class Equipment {
 	public abstract void powerOff();
 	public abstract void restart();
 	public abstract Double calculateConsumption();
+	public abstract String getDetails();
     
 	@Override
 	public String toString() {

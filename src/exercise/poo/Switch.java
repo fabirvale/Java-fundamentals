@@ -36,6 +36,11 @@ public class Switch extends Equipment {
 	public Double calculateConsumption() {
 		return (super.getEnergyConsumption() * 24) / 1000;
 	}
+	
+	@Override
+	public String getDetails() {
+	    return String.format("Capacity: %.2f GB", portCapacityGB);
+	}
  
 	@Override
 	public String toString() {

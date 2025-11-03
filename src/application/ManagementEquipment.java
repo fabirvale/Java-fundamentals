@@ -43,18 +43,43 @@ public class ManagementEquipment {
 				 }
 				break;
 			case 2:
-				System.out.println();
-				System.out.println();
-				System.out.println("--- List of Equipments ---");
-				for(Equipment e: equipments) {
-					System.out.println();
-					System.out.println(e);
-				}
-				break;
+				listEquipments(equipments);
+			    break;	
 			case 3:
-				System.out.println();
-				System.out.println("Turn On / Turn Off / Restart Equipment");
-				break;
+				   if (equipments.isEmpty()) {
+						System.out.println("No equipment registered yet.");
+					}
+				   else {
+	                      while (true)
+	                      {
+					          System.out.print("Which of the operations would you like to execute (Turn On / Turn Off / Restart)?");
+					          String op = sc.nextLine().trim();
+	                           
+					          // check if operation is valid
+	    	                 if (op.equalsIgnoreCase("Turn On") || 
+	    	                	 op.equalsIgnoreCase("Turn Off") || 
+	    	                	 op.equalsIgnoreCase("Restart"))
+	                         {
+					             System.out.print("Inform the IP:");
+	                             String ip = sc.nextLine();
+	                             if (!validarIP(ip)) {
+				                     System.out.println("Invalid IP format! Try again (e.g. 192.168.0.10)");
+				                     continue; // volta para o início do loop
+			                      }
+	                              else{
+	                                  executeOperation(op, ip, equipments);
+	                                  break;
+	                               }
+	                         }   
+	                          else 
+	                          {
+	    		                 System.out.println("Unknown the operation! Please enter a valid type.");
+	                             continue;
+	    	                  }
+	                    }
+					}  
+
+             	break;
 			case 4:
 				System.out.println();
 				System.out.println("Calculate Energy Consumption");
@@ -82,124 +107,234 @@ public class ManagementEquipment {
 		
 	    sc.close();
 	}
-	
+
 	public static void showMenu() {
-		
+
 		System.out.println("========================================");
 		System.out.println("=======NETWORK MANAGEMENT SYSTEM========");
 		System.out.println("========================================");
-        System.out.println();
-				
+		System.out.println();
+
 		System.out.println("1 - Register Equipment");
 		System.out.println("2 - List Equipment");
 		System.out.println("3 - Turn On / Turn Off / Restart Equipment");
 		System.out.println("4 - Calculate Energy Consumption");
-		System.out.println("5 - Status Report");
+		System.out.println("5 - State Report");
 		System.out.println("6 - Search Equipment by IP");
 		System.out.println("7 - Remove Equipment by IP");
 		System.out.println("8 - Exit");
 		System.out.println();
-		
+
 	}
-	
+
 	public static boolean registerEquipment(Scanner sc, List<Equipment> equipments) {
-		String type;
-		
+		String type, ip, model, manufacturer, state;
+		double energyConsumption;
+
 		while (true) {
-		    System.out.print("Type (Router / Switch / Server / Firewall): ");
-		    type = sc.nextLine().trim();
+			System.out.print("Type (Router / Switch / Server / Firewall): ");
+			type = sc.nextLine().trim();
 
-		    // check if type is valid
-		    if (type.equalsIgnoreCase("Router") ||
-		        type.equalsIgnoreCase("Switch") ||
-		        type.equalsIgnoreCase("Server") ||
-		        type.equalsIgnoreCase("Firewall")) {
-		        break; // sai do loop — tipo válido
-		    } else {
-		        System.out.println("Unknown equipment type! Please enter a valid type.");
-		    }
-		}
-		
-		System.out.print("Inform the model: ");
-		String model = sc.nextLine();
-		System.out.print("Inform the IP: ");
-		String ip = sc.nextLine();
-	
-		while (true) {
-		    if (!validarIP(ip)) {
-		        System.out.println("IP invalid! Try again.");
-		        System.out.print("Inform the IP: ");
-			    ip = sc.nextLine();
-		        continue; // volta para o início do loop
-		    }
-
-		    if (ipExist(ip, equipments)) {
-		        System.out.println("This IP already was registered! Inform other IP.");
-		        System.out.print("Inform the IP: ");
-			    ip = sc.nextLine();
-		        continue; //return to the beginning of the loop
-		    }
-
-		    break; //Exit the loop — IP is valid and unique
+			// check if type is valid
+			if (type.equalsIgnoreCase("Router") || type.equalsIgnoreCase("Switch") || type.equalsIgnoreCase("Server")
+					|| type.equalsIgnoreCase("Firewall")) {
+				break; // sai do loop — tipo válido
+			} else {
+				System.out.println("Unknown equipment type! Please enter a valid operation.");
+			}
 		}
 
-		System.out.print("Inform the manufacturer: ");
-		String manufacturer = sc.nextLine();
-		System.out.print("Inform the state(on/off): ");
-		String state = sc.nextLine();
-	    System.out.print("Inform the energy consumption(W): ");
-	    double energyconsumption = sc.nextDouble();
-	    sc.nextLine();
-	    
-	    if (type.equalsIgnoreCase("Router")){
-	    	System.out.print("Support the Wifi(true/false): ");
-	    	boolean supportWifi = sc.nextBoolean();
-	    	System.out.print("Inform the Mbps: ");
-	    	int mbps = sc.nextInt();
-	    	equipments.add(new Router(type, model, ip, manufacturer, state, energyconsumption, supportWifi,mbps));
-	    	
-	    }
-	    else if (type.equalsIgnoreCase("Switch")){
-	    	System.out.print("Inform the capacity in GB: ");
-	    	double portCapacityGB = sc.nextDouble();
-	    	equipments.add(new Switch(type, model, ip, manufacturer, state, energyconsumption, portCapacityGB));
-	    }
-	    else if (type.equalsIgnoreCase("Server")){
-	    	System.out.print("Inform the Operating System: ");
-	    	String opSystem = sc.nextLine();
-	    	System.out.print("Inform the RAM capacity: ");
-	    	int ramCapacity = sc.nextInt();
-	    	System.out.print("Inform the Disk capacity: ");
-	    	int diskCapacity = sc.nextInt();
-	    	equipments.add(new Server(type, model, ip, manufacturer, state, energyconsumption, opSystem, ramCapacity, diskCapacity));
-	    }
-	    else if (type.equalsIgnoreCase("Firewall")) {
-	    	System.out.print("Support statefullPacketInspection(true/false): ");
-	    	boolean statefullPacketInspection = sc.nextBoolean();
-	    	System.out.print("Support blockDoS(true/false): ");
-	    	boolean blockDoS = sc.nextBoolean();
-	    	equipments.add(new Firewall(type, model, ip, manufacturer, state, energyconsumption, statefullPacketInspection, blockDoS));
-	    }
-	    else {
-	    	return false;
-	    }
-	       return true;
+		while (true) {
+			System.out.print("Inform the model: ");
+			model = sc.nextLine().trim();
+			if (!model.isEmpty())
+				break;
+			System.out.println("Model cannot be empty!");
+		}
+
+		while (true) {
+			System.out.print("Inform the IP: ");
+			ip = sc.nextLine();
+
+			if (!validarIP(ip)) {
+				System.out.println("Invalid IP format! Try again (e.g. 192.168.0.10)");
+				continue; // volta para o início do loop
+			}
+
+			if (ipExist(ip, equipments)) {
+				System.out.println("This IP already was registered! Inform other IP.");
+				continue; // return to the beginning of the loop
+			}
+
+			break; // Exit the loop — IP is valid and unique
+		}
+
+		while (true) {
+			System.out.print("Manufacturer: ");
+			manufacturer = sc.nextLine().trim();
+			if (!manufacturer.isEmpty())
+				break;
+			System.out.println("Manufacturer cannot be empty!");
+		}
+
+		while (true) {
+			System.out.print("State (on/off): ");
+			state = sc.nextLine().trim().toLowerCase();
+			if (state.equals("on") || state.equals("off"))
+				break;
+			System.out.println("Invalid state! Must be 'on' or 'off'.");
+		}
+
+		// energyConsumption — positive number
+		while (true) {
+			try {
+				System.out.print("Energy Consumption (W): ");
+				energyConsumption = Double.parseDouble(sc.nextLine());
+				if (energyConsumption > 0)
+					break;
+				System.out.println("Energy consumption must be positive!");
+			} catch (NumberFormatException e) {
+				System.out.println("Invalid number! Try again.");
+			}
+		}
+
+		if (type.equalsIgnoreCase("Router")) {
+			System.out.print("Support the Wifi(true/false): ");
+			boolean supportWifi = sc.nextBoolean();
+			sc.nextLine(); // <- clean the buffer
+			int mbps = readPositiveInt(sc, "Inform the Mbps: ");
+			;
+			equipments.add(new Router(type, model, ip, manufacturer, state, energyConsumption, supportWifi, mbps));
+
+		} else if (type.equalsIgnoreCase("Switch")) {
+			double portCapacityGB = readPositiveDouble(sc, "Inform the Switch Capacity (Gbps): ");
+			equipments.add(new Switch(type, model, ip, manufacturer, state, energyConsumption, portCapacityGB));
+		} else if (type.equalsIgnoreCase("Server")) {
+			System.out.print("Inform the Operating System: ");
+			String opSystem = sc.nextLine();
+
+			int ramCapacity = readPositiveInt(sc, "Inform the RAM Capacity (GB): ");
+			int diskCapacity = readPositiveInt(sc, "Inform the Disk Capacity (GB): ");
+			equipments.add(new Server(type, model, ip, manufacturer, state, energyConsumption, opSystem, ramCapacity,
+					diskCapacity));
+		} else if (type.equalsIgnoreCase("Firewall")) {
+			System.out.print("Support statefullPacketInspection(true/false): ");
+			boolean statefullPacketInspection = Boolean.parseBoolean(sc.nextLine());
+			System.out.print("Support blockDoS(true/false): ");
+			boolean blockDoS = Boolean.parseBoolean(sc.nextLine());
+			equipments.add(new Firewall(type, model, ip, manufacturer, state, energyConsumption,
+					statefullPacketInspection, blockDoS));
+		} else {
+			return false;
+		}
+		return true;
 	}
-	
+
 	public static boolean validarIP(String ip) {
-	    String regex =
-	        "^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}" +
-	        "(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$";
-	    return ip.matches(regex);
+		String regex = "^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}" + "(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$";
+		return ip.matches(regex);
 	}
 
 	public static boolean ipExist(String ip, List<Equipment> equipments) {
-	    for (Equipment e : equipments) {
-	        if (e.getIp().equals(ip)) {
-	            return true; // there is IP in list
-	        }
-	    }
-	    return false; // there is no IP in list
+		for (Equipment e : equipments) {
+			if (e.getIp().equals(ip)) {
+				return true; // there is IP in list
+			}
+		}
+		return false; // there is no IP in list
+	}
+
+	// Read a positive integer
+	public static int readPositiveInt(Scanner sc, String message) {
+		while (true) {
+			try {
+				System.out.print(message);
+				int value = Integer.parseInt(sc.nextLine());
+				if (value > 0)
+					return value;
+				System.out.println("Must be positive!");
+			} catch (NumberFormatException e) {
+				System.out.println("Invalid number!");
+			}
+		}
+	}
+
+	// Lê um número decimal positivo
+	public static double readPositiveDouble(Scanner sc, String message) {
+		while (true) {
+			try {
+				System.out.print(message);
+				double value = Double.parseDouble(sc.nextLine());
+				if (value > 0)
+					return value;
+				System.out.println("Must be positive!");
+			} catch (NumberFormatException e) {
+				System.out.println("Invalid number!");
+			}
+		}
+	}
+
+	public static void listEquipments(List<Equipment> equipments) {
+		System.out.println();
+		System.out.println(
+				"===========================================EQUIPMENTS LIST========================================================");
+		System.out.println();
+		if (equipments.isEmpty()) {
+			System.out.println("No equipment registered yet.");
+		} else {
+			// Cabeçalho da tabela
+			System.out.printf("%-10s %-12s %-16s %-15s %-10s %-15s %-40s%n", "Type", "Model", "IP", "Manufacturer",
+					"State", "Energy(W)", "Specific Info");
+			System.out.println(
+					"---------------------------------------------------------------------------------------------------------------");
+
+			// lines of table
+			for (Equipment e : equipments) {
+				// Exibe uma linha formatada
+				System.out.printf("%-10s %-12s %-16s %-15s %-10s %-15.2f %-40s%n", e.getType(), e.getModel(), e.getIp(),
+						e.getManufacturer(), e.getState(), e.getEnergyConsumption(), e.getDetails());
+			}
+		}
+
+		System.out.println(
+				"---------------------------------------------------------------------------------------------------------------");
+	}
+
+	public static void executeOperation(String op, String ip, List<Equipment> equipments) {
+		    boolean found = false;
+			for (Equipment e : equipments) {
+					if (e.getIp().equals(ip)) {
+						
+                        found = true; //found the ip
+						if (op.equalsIgnoreCase("Turn on")) {
+							
+							if (e.getState().equalsIgnoreCase("on")) {
+								System.out.println("The equipment has already been turned on");
+							}
+							else {
+							  e.setState("on");	
+							  e.powerOn();
+							} 
+						} else if (op.equalsIgnoreCase("Turn off")) {
+							if (e.getState().equalsIgnoreCase("off")) {
+								System.out.println("The equipment has already been turned off");	
+							}
+							else {
+							  e.setState("off");		
+							  e.powerOff();
+							}
+						} else {
+							if (e.getState().equalsIgnoreCase("off")) {
+		                        System.out.println("The equipment is off! Turn it on before restarting.");
+		                    } else {
+		                        e.restart();
+		                    }
+						}
+      			   }
+		  }
+			 if (!found) {
+			        System.out.println("No equipment found with IP " + ip);
+			    }	
 	}
 
 }

@@ -48,6 +48,11 @@ public class Firewall extends Equipment {
 	public Double calculateConsumption() {
 		return (super.getEnergyConsumption() * 24) / 1000;
 	}
+	
+	@Override
+	public String getDetails() {
+	    return String.format("SPI: %s | Block DoS: %s", isStatefullPacketInspection(), isBlockDoS());
+	}
     
 	@Override
 	public String toString() {
