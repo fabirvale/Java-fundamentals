@@ -4,8 +4,8 @@ public class Switch extends Equipment {
 	private Double portCapacityGB;
 
 	public Switch(String type, String model, String ip, String manufacturer, String state, Double energyConsumption,
-			Double portCapacityGB) {
-		super(type, model, ip, manufacturer, state, energyConsumption);
+			Integer qtdHourConsumption, Double portCapacityGB) {
+		super(type, model, ip, manufacturer, state, energyConsumption, qtdHourConsumption);
 		this.portCapacityGB = portCapacityGB;
 	}
 
@@ -33,8 +33,8 @@ public class Switch extends Equipment {
 	}
 	
 	@Override
-	public Double calculateConsumption() {
-		return (super.getEnergyConsumption() * 24) / 1000;
+	public Double calculateConsumption(Integer qtdHourConsumption) {
+		return (super.getEnergyConsumption() * super.getQtdHourConsumption()) / 1000;
 	}
 	
 	@Override

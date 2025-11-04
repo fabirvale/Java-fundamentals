@@ -5,8 +5,8 @@ public class Router extends Equipment {
 	private Integer Mbps;
 
 	public Router(String type, String model, String ip, String manufacturer, String state, Double energyConsumption,
-			Boolean suportWifi, Integer mbps) {
-		super(type, model, ip, manufacturer, state, energyConsumption);
+			Integer qtdHourConsumption, Boolean suportWifi, Integer mbps) {
+		super(type, model, ip, manufacturer, state, energyConsumption, qtdHourConsumption);
 		this.supportWifi = suportWifi;
 		Mbps = mbps;
 	}
@@ -44,9 +44,9 @@ public class Router extends Equipment {
 	}
 	
 	@Override
-	public Double calculateConsumption() {
+	public Double calculateConsumption(Integer qtdHourConsumption) {
 		
-		return (super.getEnergyConsumption() * 24) / 1000;
+		return (super.getEnergyConsumption() * super.getQtdHourConsumption()) / 1000;
 	}
     
 	@Override

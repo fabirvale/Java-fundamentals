@@ -7,14 +7,16 @@ public abstract class Equipment {
 	private String manufacturer;
     private String state;
     private Double energyConsumption;
+    private Integer qtdHourConsumption;
     
-	public Equipment(String type, String model, String ip, String manufacturer, String state, Double energyConsumption) {
+	public Equipment(String type, String model, String ip, String manufacturer, String state, Double energyConsumption, Integer qtdHourConsumption) {
 		this.type = type;
 		this.model = model;
 		this.ip = ip;
 		this.manufacturer = manufacturer;
 		this.state = state;
 		this.energyConsumption = energyConsumption;
+		this.qtdHourConsumption = qtdHourConsumption;
 	}
 	public String getType() {
 		return type;
@@ -53,10 +55,17 @@ public abstract class Equipment {
 		this.energyConsumption = energyConsumption;
 	}
 	
+	public Integer getQtdHourConsumption() {
+		return qtdHourConsumption;
+	}
+	public void setQtdHourConsumption(Integer qtdHourConsumption) {
+		this.qtdHourConsumption = qtdHourConsumption;
+	}
+	
 	public abstract void powerOn();
 	public abstract void powerOff();
 	public abstract void restart();
-	public abstract Double calculateConsumption();
+	public abstract Double calculateConsumption(Integer qtdHourConsumption);
 	public abstract String getDetails();
     
 	@Override
@@ -65,7 +74,9 @@ public abstract class Equipment {
 				+ "\n IP: " + ip 
 				+ "\n Manufacturer: " + manufacturer
 				+ "\n State: " + state 
-				+ "\n EnergyConsumption(kWh): " + energyConsumption;
+				+ "\n EnergyConsumption(Watts): " + energyConsumption
+				+ "\n Consumption/Day (kWh): " + qtdHourConsumption;
+				
 	}
 	
 	

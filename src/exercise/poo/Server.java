@@ -6,8 +6,8 @@ public class Server extends Equipment{
 	private int diskCapacity;
 	
 	public Server(String type, String model, String ip, String manufacturer, String state, Double energyConsumption,
-			String opSystem, int ramCapacity, int diskCapacity) {
-		super(type, model, ip, manufacturer, state, energyConsumption);
+			Integer qtdHourConsumption, String opSystem, int ramCapacity, int diskCapacity) {
+		super(type, model, ip, manufacturer, state, energyConsumption, qtdHourConsumption);
 		this.opSystem = opSystem;
 		this.ramCapacity = ramCapacity;
 		this.diskCapacity = diskCapacity;
@@ -54,8 +54,8 @@ public class Server extends Equipment{
 	}
 	
 	@Override
-	public Double calculateConsumption() {
-		return (super.getEnergyConsumption() * 24) / 1000;
+	public Double calculateConsumption(Integer qtdHourConsumption) {
+		return (super.getEnergyConsumption() * super.getQtdHourConsumption()) / 1000;
 	}
 	
 	@Override

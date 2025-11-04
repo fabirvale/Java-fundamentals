@@ -5,8 +5,8 @@ public class Firewall extends Equipment {
 	private boolean blockDoS; //indicates whether the firewall has protection against DoS (Denial of Service) attacks
 	
 	public Firewall(String type, String model, String ip, String manufacturer, String state, Double energyConsumption,
-			boolean statefullPacketInspection, boolean blockDoS) {
-		super(type, model, ip, manufacturer, state, energyConsumption);
+			Integer qtdHourConsumption, boolean statefullPacketInspection, boolean blockDoS) {
+		super(type, model, ip, manufacturer, state, energyConsumption, qtdHourConsumption);
 		this.statefullPacketInspection = statefullPacketInspection;
 		this.blockDoS = blockDoS;
 	}
@@ -45,8 +45,8 @@ public class Firewall extends Equipment {
 	}
 	
 	@Override
-	public Double calculateConsumption() {
-		return (super.getEnergyConsumption() * 24) / 1000;
+	public Double calculateConsumption(Integer qtdHourConsumption) {
+		return (super.getEnergyConsumption() * super.getQtdHourConsumption()) / 1000;
 	}
 	
 	@Override
