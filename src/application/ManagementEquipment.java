@@ -17,6 +17,7 @@ public class ManagementEquipment {
 		String type, model, ip, manufacturer, state;
 		double energyConsumption;
 
+		eqService.loadFromFile();
 		showMenu();
 
 		do {
@@ -31,289 +32,419 @@ public class ManagementEquipment {
 			}
 			switch (option) {
 			case 1:
-				clearScreen();
-				System.out.println();
-				System.out.println("--------Register the equipment--------");
+				 clearScreen();
+				    System.out.println();
+				    System.out.println("-------- Register the equipment --------");
 
-				while (true) {
-					System.out.print("Type (Router / Switch / Server / Firewall): ");
-					type = sc.nextLine().trim();
-					if (!eqService.isValidType(type)) {
-						System.out.println("Unknown equipment type! Please enter a valid operation.");
-					} else {
-						break;
-					}
-				}
+				    // === Validate Type ===
+				    while (true) {
+				        System.out.print("Type (Router / Switch / Server / Firewall): ");
+				        type = sc.nextLine().trim();
+				        if (!eqService.isValidType(type)) {
+				            System.out.println("Unknown equipment type! Please enter a valid type.");
+				        } else {
+				            break;
+				        }
+				    }
 
-				while (true) {
-					System.out.print("Inform the model: ");
-					model = sc.nextLine();
-					if (!eqService.isValidModel(model)) {
-						System.out.println("Model cannot be empty!Try again");
-					} else {
-						break;
-					}
-				}
+				    // === Validate Model ===
+				    while (true) {
+				        System.out.print("Inform the model: ");
+				        model = sc.nextLine();
+				        if (!eqService.isValidModel(model)) {
+				            System.out.println("Model cannot be empty! Try again.");
+				        } else {
+				            break;
+				        }
+				    }
 
-				while (true) {
-					System.out.print("Inform the IP: ");
-					ip = sc.nextLine();
+				    // === Validate IP ===
+				    while (true) {
+				        System.out.print("Inform the IP: ");
+				        ip = sc.nextLine();
 
-					if (!eqService.validarIP(ip)) {
-						System.out.println("Invalid IP format! Try again (e.g. 192.168.0.10)");
-						continue; // volta para o início do loop
-					}
+				        if (!eqService.validarIP(ip)) {
+				            System.out.println("Invalid IP format! Try again (e.g. 192.168.0.10)");
+				            continue;
+				        }
 
-					if (eqService.isDuplicateIp(ip)) {
-						System.out.println("This IP already was registered! Inform other IP.");
-						continue; // return to the beginning of the loop
-					}
+				        if (eqService.isDuplicateIp(ip)) {
+				            System.out.println("This IP already was registered! Inform another IP.");
+				            continue;
+				        }
 
-					break; // Exit the loop — IP is valid and unique
-				}
+				        break;
+				    }
 
-				while (true) {
-					System.out.print("Inform the Manufacturer: ");
-					manufacturer = sc.nextLine();
-					if (!eqService.isValidManufacturer(manufacturer)) {
-						System.out.println("Manufacturer cannot be empty!Try again");
-					} else {
-						break;
-					}
-				}
+				    // === Validate Manufacturer ===
+				    while (true) {
+				        System.out.print("Inform the Manufacturer: ");
+				        manufacturer = sc.nextLine();
+				        if (!eqService.isValidManufacturer(manufacturer)) {
+				            System.out.println("Manufacturer cannot be empty! Try again.");
+				        } else {
+				            break;
+				        }
+				    }
 
-				while (true) {
-					System.out.print("State (on/off): ");
-					state = sc.nextLine();
-					if (eqService.isValidState(state))
-						break;
-					System.out.println("Invalid state! Must be 'on' or 'off'.");
-				}
+				    // === Validate State ===
+				    while (true) {
+				        System.out.print("State (on/off): ");
+				        state = sc.nextLine();
+				        if (eqService.isValidState(state))
+				            break;
+				        System.out.println("Invalid state! Must be 'on' or 'off'.");
+				    }
 
-				while (true) {
-					System.out.print("Energy Consumption (W): ");
-					energyConsumption = sc.nextDouble();
-					try {
-						if (eqService.isValidEnergy(energyConsumption))
-							break;
-						System.out.println("Energy consumption must be positive!");
-					} catch (NumberFormatException e) {
-						System.out.println("Invalid number! Try again.");
-					}
-				}
+				    // === Validate Energy Consumption ===
+				    while (true) {
+				        try {
+				            System.out.print("Energy Consumption (W): ");
+				            energyConsumption = sc.nextDouble();
+				            sc.nextLine(); // limpar buffer
+				            if (eqService.isValidEnergy(energyConsumption))
+				                break;
+				            System.out.println("Energy consumption must be positive!");
+				        } catch (NumberFormatException e) {
+				            System.out.println("Invalid number! Try again.");
+				            sc.nextLine(); // limpar buffer após erro
+				        }
+				    }
 
-				while (true) {
-					System.out.print("Consumption/Day : ");
-					qtdHourConsumption = sc.nextInt();
-					try {
-						if (eqService.isValidConsumptionHours(qtdHourConsumption))
-							break;
-						System.out.println("Consumption/Day must be positive!");
-					} catch (NumberFormatException e) {
-						System.out.println("Invalid number! Try again.");
-					}
+				    // === Validate Consumption/Day ===
+				    while (true) {
+				        try {
+				            System.out.print("Consumption/Day (hours): ");
+				            qtdHourConsumption = sc.nextInt();
+				            sc.nextLine(); // limpar buffer
+				            if (eqService.isValidConsumptionHours(qtdHourConsumption))
+				                break;
+				            System.out.println("Consumption/Day must be positive!");
+				        } catch (NumberFormatException e) {
+				            System.out.println("Invalid number! Try again.");
+				            sc.nextLine(); // limpar buffer após erro
+				        }
+				    }
 
-				}
-				eqService.registerEquipment(type, model, ip, manufacturer, state, energyConsumption, qtdHourConsumption,
-						sc);
+				    // === Specific Fields by Type ===
+				    boolean supportWifi = false;
+				    int mbps = 0;
+				    double portCapacityGB = 0.0;
+				    String opSystem = "";
+				    int ramCapacity = 0;
+				    int diskCapacity = 0;
+				    boolean statefullPacketInspection = false;
+				    boolean blockDoS = false;
 
-				break;
+				    // === Type: Router ===
+				    if (type.equalsIgnoreCase("Router")) {
+				        while (true) {
+				            System.out.print("Support Wifi? (yes/no): ");
+				            String answer = sc.nextLine().trim().toLowerCase();
+				            if (eqService.isValidBoolean(answer)) {
+				                supportWifi = answer.equals("yes");
+				                break;
+				            } else {
+				                System.out.println("Invalid option! Type 'yes' or 'no'.");
+				            }
+				        }
+
+				        while (true) {
+				            try {
+				                System.out.print("Inform Mbps: ");
+				                mbps = sc.nextInt();
+				                sc.nextLine();
+				                if (eqService.isValidInteger(mbps))
+				                    break;
+				                System.out.println("Mbps must be positive!");
+				            } catch (NumberFormatException e) {
+				                System.out.println("Invalid number! Try again.");
+				                sc.nextLine();
+				            }
+				        }
+				    }
+
+				    // === Type: Switch ===
+				    else if (type.equalsIgnoreCase("Switch")) {
+				        while (true) {
+				            try {
+				                System.out.print("Inform Switch Capacity (Gbps): ");
+				                portCapacityGB = sc.nextDouble();
+				                sc.nextLine();
+				                if (eqService.isValidDouble(portCapacityGB))
+				                    break;
+				                System.out.println("Capacity must be positive!");
+				            } catch (NumberFormatException e) {
+				                System.out.println("Invalid number! Try again.");
+				                sc.nextLine();
+				            }
+				        }
+				    }
+
+				    // === Type: Server ===
+				    else if (type.equalsIgnoreCase("Server")) {
+				        while (true) {
+				            System.out.print("Inform Operating System: ");
+				            opSystem = sc.nextLine().trim();
+				            if (!eqService.isValidosSystem(opSystem)) {
+				                System.out.println("Operating System cannot be empty! Try again.");
+				            } else {
+				                break;
+				            }
+				        }
+
+				        while (true) {
+				            try {
+				                System.out.print("Inform RAM Capacity (GB): ");
+				                ramCapacity = sc.nextInt();
+				                sc.nextLine();
+				                if (eqService.isValidInteger(ramCapacity))
+				                    break;
+				                System.out.println("RAM Capacity must be positive!");
+				            } catch (NumberFormatException e) {
+				                System.out.println("Invalid number! Try again.");
+				                sc.nextLine();
+				            }
+				        }
+
+				        while (true) {
+				            try {
+				                System.out.print("Inform Disk Capacity (GB): ");
+				                diskCapacity = sc.nextInt();
+				                sc.nextLine();
+				                if (eqService.isValidInteger(diskCapacity))
+				                    break;
+				                System.out.println("Disk Capacity must be positive!");
+				            } catch (NumberFormatException e) {
+				                System.out.println("Invalid number! Try again.");
+				                sc.nextLine();
+				            }
+				        }
+				    }
+
+				    // === Type: Firewall ===
+				    else if (type.equalsIgnoreCase("Firewall")) {
+				        while (true) {
+				            System.out.print("Support statefullPacketInspection? (yes/no): ");
+				            String answer = sc.nextLine().trim().toLowerCase();
+				            if (eqService.isValidBoolean(answer)) {
+				                statefullPacketInspection = answer.equals("yes");
+				                break;
+				            } else {
+				                System.out.println("Invalid option! Type 'yes' or 'no'.");
+				            }
+				        }
+
+				        while (true) {
+				            System.out.print("Support blockDoS? (yes/no): ");
+				            String answer = sc.nextLine().trim().toLowerCase();
+				            if (eqService.isValidBoolean(answer)) {
+				                blockDoS = answer.equals("yes");
+				                break;
+				            } else {
+				                System.out.println("Invalid option! Type 'yes' or 'no'.");
+				            }
+				        }
+				    }
+
+				    // === Register Equipment ===
+				    boolean success = eqService.registerEquipment(type, model, ip, manufacturer,
+							state, energyConsumption, qtdHourConsumption, supportWifi, mbps,
+							portCapacityGB, opSystem, ramCapacity, diskCapacity,
+							 statefullPacketInspection,  blockDoS);
+
+				    if (success) {
+				        System.out.println("Equipment registered successfully!");
+				    } else {
+				        System.out.println("Error registering equipment! Please verify the data.");
+				    }
+
+				    break; // close the case
 			case 2:
 				clearScreen();
 				printListEquipments(eqService.getEquipments());
 				break;
 			case 3:
 				clearScreen();
-			    if (eqService.getEquipments().isEmpty()) {
-			        System.out.println("No equipment registered yet.");
-			    } else {
-			        Equipment foundIpList = null;
+				if (eqService.getEquipments().isEmpty()) {
+					System.out.println("No equipment registered yet.");
+				} else {
+					Equipment foundIpList = null;
 
-			        while (true) {
-			            System.out.print("Which of the operations would you like to execute (Turn On / Turn Off / Restart)? ");
-			            String op = sc.nextLine().trim();
+					while (true) {
+						System.out.print(
+								"Which of the operations would you like to execute (Turn On / Turn Off / Restart)? ");
+						String op = sc.nextLine().trim();
 
-			            if (!(op.equalsIgnoreCase("Turn On") || op.equalsIgnoreCase("Turn Off") || op.equalsIgnoreCase("Restart"))) {
-			                System.out.println("Unknown operation! Please enter a valid type.");
-			                continue;
-			            }
+						if (!(op.equalsIgnoreCase("Turn On") || op.equalsIgnoreCase("Turn Off")
+								|| op.equalsIgnoreCase("Restart"))) {
+							System.out.println("Unknown operation! Please enter a valid type.");
+							continue;
+						}
 
-			            System.out.print("Inform the IP: ");
-			            ip = sc.nextLine();
+						System.out.print("Inform the IP: ");
+						ip = sc.nextLine();
 
-			            if (!eqService.validarIP(ip)) {
-			                System.out.println("Invalid IP format! Try again (e.g. 192.168.0.10)");
-			                continue;
-			            }
+						if (!eqService.validarIP(ip)) {
+							System.out.println("Invalid IP format! Try again (e.g. 192.168.0.10)");
+							continue;
+						}
 
-			            foundIpList = eqService.ipSearch(ip);
+						foundIpList = eqService.ipSearch(ip);
 
-			            if (foundIpList == null) {
-			                System.out.println("No equipment found with IP " + ip);
-			                break;
-			            }
+						if (foundIpList == null) {
+							System.out.println("No equipment found with IP " + ip);
+							break;
+						}
 
-			            if (op.equalsIgnoreCase("Turn On") && foundIpList.getState().equalsIgnoreCase("on")) {
-			                System.out.println("The equipment has already been turned on");
-			                break;
-			            }
+						if (op.equalsIgnoreCase("Turn On") && foundIpList.getState().equalsIgnoreCase("on")) {
+							System.out.println("The equipment has already been turned on");
+							break;
+						}
 
-			            if (op.equalsIgnoreCase("Turn Off") && foundIpList.getState().equalsIgnoreCase("off")) {
-			                System.out.println("The equipment has already been turned off");
-			                break;
-			            }
+						if (op.equalsIgnoreCase("Turn Off") && foundIpList.getState().equalsIgnoreCase("off")) {
+							System.out.println("The equipment has already been turned off");
+							break;
+						}
 
-			            if (op.equalsIgnoreCase("Restart") && foundIpList.getState().equalsIgnoreCase("off")) {
-			                System.out.println("The equipment is off! Turn it on before restarting.");
-			                break;
-			            }
+						if (op.equalsIgnoreCase("Restart") && foundIpList.getState().equalsIgnoreCase("off")) {
+							System.out.println("The equipment is off! Turn it on before restarting.");
+							break;
+						}
 
-			            eqService.executeOperation(op, foundIpList);
-			            break;
-			        }
-			    }
-			    break;
+						eqService.executeOperation(op, foundIpList);
+						break;
+					}
+				}
+				break;
 			case 4:
-				 clearScreen();
-				 if (eqService.getEquipments().isEmpty()) {
-				        System.out.println("No equipment registered yet.");
-				 }
-                 else {
-				        Equipment foundIpList = null;
-				        while (true)
-				        {
-				          System.out.println("================================== ENERGY REPORT ===================================");
-				     	  System.out.print("Inform the IP:"); 
-			              ip = sc.nextLine();
-			              if (!eqService.validarIP(ip))
-			              {
-							 System.out.println("Invalid IP format! Try again (e.g. 192.168.0.10)");
-							  continue; //go back to the beginning of the loop
-			               }
-			               else{
-			            	   foundIpList = eqService.ipSearch(ip);
-			            	   
-			            	   if (foundIpList == null) {
-			                       System.out.println("No equipment found with IP " + ip);
-			                       break; // Exit the loop,there is no equipment
-			                   }
-			            	   eqService.showEnergyReport(foundIpList);
-			            	   break;
-			                }
-				        	
-				        }
+				clearScreen();
+				if (eqService.getEquipments().isEmpty()) {
+					System.out.println("No equipment registered yet.");
+				} else {
+					Equipment foundIpList = null;
+					while (true) {
+						System.out.println(
+								"================================== ENERGY REPORT ===================================");
+						System.out.print("Inform the IP:");
+						ip = sc.nextLine();
+						if (!eqService.validarIP(ip)) {
+							System.out.println("Invalid IP format! Try again (e.g. 192.168.0.10)");
+							continue; // go back to the beginning of the loop
+						} else {
+							foundIpList = eqService.ipSearch(ip);
 
-				    }
+							if (foundIpList == null) {
+								System.out.println("No equipment found with IP " + ip);
+								break; // Exit the loop,there is no equipment
+							}
+							eqService.showEnergyReport(foundIpList);
+							break;
+						}
+
+					}
+
+				}
 				break;
 			case 5:
-				 clearScreen();
-				 if (eqService.getEquipments().isEmpty()) {
-				        System.out.println("No equipment registered yet.");
-				 }
-                 else {
-				        Equipment foundIpList = null;
-				        while (true)
-				        {
-				          System.out.println("================================== STATE REPORT ===================================");
-				     	  System.out.print("Inform the IP:"); 
-			              ip = sc.nextLine();
-			              if (!eqService.validarIP(ip))
-			              {
-							 System.out.println("Invalid IP format! Try again (e.g. 192.168.0.10)");
-							  continue; //go back to the beginning of the loop
-			               }
-			               else{
-			            	   foundIpList = eqService.ipSearch(ip);
-			            	   
-			            	   if (foundIpList == null) {
-			                       System.out.println("No equipment found with IP " + ip);
-			                       break; // Exit the loop,there is no equipment
-			                   }
-			            	   eqService.showStateReport(foundIpList);
-			            	   break;
-			                }
-				        	
-				        }
+				clearScreen();
+				if (eqService.getEquipments().isEmpty()) {
+					System.out.println("No equipment registered yet.");
+				} else {
+					Equipment foundIpList = null;
+					while (true) {
+						System.out.println(
+								"================================== STATE REPORT ===================================");
+						System.out.print("Inform the IP:");
+						ip = sc.nextLine();
+						if (!eqService.validarIP(ip)) {
+							System.out.println("Invalid IP format! Try again (e.g. 192.168.0.10)");
+							continue; // go back to the beginning of the loop
+						} else {
+							foundIpList = eqService.ipSearch(ip);
 
-				    }
+							if (foundIpList == null) {
+								System.out.println("No equipment found with IP " + ip);
+								break; // Exit the loop,there is no equipment
+							}
+							eqService.showStateReport(foundIpList);
+							break;
+						}
+
+					}
+
+				}
 				break;
-				 
+
 			case 6:
 				clearScreen();
-				 if (eqService.getEquipments().isEmpty()) {
-				        System.out.println("No equipment registered yet.");
-				 }
-                else {
-				        Equipment foundIpList = null;
-				        while (true)
-				        {
-				          System.out.println("==================================Search Equipment by IP===================================");
-				     	  System.out.print("Inform the IP:"); 
-			              ip = sc.nextLine();
-			              if (!eqService.validarIP(ip))
-			              {
-							 System.out.println("Invalid IP format! Try again (e.g. 192.168.0.10)");
-							  continue; //go back to the beginning of the loop
-			               }
-			               else{
-			            	   foundIpList = eqService.ipSearch(ip);
-			            	   
-			            	   if (foundIpList == null) {
-			                       System.out.println("No equipment found with IP " + ip);
-			                       break; // Exit the loop,there is no equipment
-			                   }
-			            	   System.out.println(foundIpList.toString());
-			            	   break;
-			                }
-				        	
-				        }
+				if (eqService.getEquipments().isEmpty()) {
+					System.out.println("No equipment registered yet.");
+				} else {
+					Equipment foundIpList = null;
+					while (true) {
+						System.out.println(
+								"==================================Search Equipment by IP===================================");
+						System.out.print("Inform the IP:");
+						ip = sc.nextLine();
+						if (!eqService.validarIP(ip)) {
+							System.out.println("Invalid IP format! Try again (e.g. 192.168.0.10)");
+							continue; // go back to the beginning of the loop
+						} else {
+							foundIpList = eqService.ipSearch(ip);
 
-				    }
+							if (foundIpList == null) {
+								System.out.println("No equipment found with IP " + ip);
+								break; // Exit the loop,there is no equipment
+							}
+							System.out.println(foundIpList.toString());
+							break;
+						}
+
+					}
+
+				}
 				break;
 			case 7:
 				clearScreen();
-				 if (eqService.getEquipments().isEmpty()) {
-				        System.out.println("No equipment registered yet.");
-				 }
-               else {
-				        Equipment foundIpList = null;
-				        while (true)
-				        {
-				          System.out.println("==================================Search Equipment by IP===================================");
-				     	  System.out.print("Inform the IP:"); 
-			              ip = sc.nextLine();
-			              if (!eqService.validarIP(ip))
-			              {
-							 System.out.println("Invalid IP format! Try again (e.g. 192.168.0.10)");
-							  continue; //go back to the beginning of the loop
-			               }
-			               else{
-			            	   foundIpList = eqService.ipSearch(ip);
-                              if (foundIpList == null) {
-			                       System.out.println("No equipment found with IP " + ip);
-			                       break; // Exit the loop,there is no equipment
-			                   }
-			            	   int index = eqService.getEquipments().indexOf(foundIpList);
-			            	   
-			            	   if (eqService.removeEquipmentByIP(index)) {
-			            	      System.out.println("Equipment with IP " + ip + " removed successfully.");
-			            	      break;
-			            	   }
-			                  else {
-			                       System.out.println("Error removing equipment with IP " + ip);
-			                       break;
-			                   }
-			            	   
-			                }
-				        	
-				        }
+				if (eqService.getEquipments().isEmpty()) {
+					System.out.println("No equipment registered yet.");
+				} else {
+					Equipment foundIpList = null;
+					while (true) {
+						System.out.println(
+								"==================================Search Equipment by IP===================================");
+						System.out.print("Inform the IP:");
+						ip = sc.nextLine();
+						if (!eqService.validarIP(ip)) {
+							System.out.println("Invalid IP format! Try again (e.g. 192.168.0.10)");
+							continue; // go back to the beginning of the loop
+						} else {
+							foundIpList = eqService.ipSearch(ip);
+							if (foundIpList == null) {
+								System.out.println("No equipment found with IP " + ip);
+								break; // Exit the loop,there is no equipment
+							}
+							int index = eqService.getEquipments().indexOf(foundIpList);
 
-				    }
+							if (eqService.removeEquipmentByIP(index)) {
+								System.out.println("Equipment with IP " + ip + " removed successfully.");
+								break;
+							} else {
+								System.out.println("Error removing equipment with IP " + ip);
+								break;
+							}
+
+						}
+
+					}
+
+				}
 				break;
 			default:
 				System.out.println("Exiting the program...");
 			}
-		  System.out.println();
+			System.out.println();
 		} while (option != 8);
 
 		sc.close();
