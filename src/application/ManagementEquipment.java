@@ -1,5 +1,6 @@
 package application;
 
+
 import java.util.List;
 import java.util.Locale;
 import java.util.Scanner;
@@ -16,18 +17,30 @@ public class ManagementEquipment {
 		int option, qtdHourConsumption;
 		String type, model, ip, manufacturer, state;
 		double energyConsumption;
-
+		option = 0;
+		
 		eqService.loadFromFile();
 		showMenu();
 
 		do {
-
-			System.out.print("Choose the option: ");
-			option = sc.nextInt();
-			sc.nextLine();
+			
+			boolean valid = false;
+			while (!valid) {
+				System.out.print("Choose the option: ");
+			    if (sc.hasNextInt()) {
+			        option = sc.nextInt();
+			        sc.nextLine(); // clear the buffer
+			        valid = true; // valid option, Exit the loop
+			    } else {
+			        System.out.println("Error: Inform the valid number!");
+			        sc.nextLine(); // clear the buffer
+			    }
+			}
 
 			if (option == 8) {
-				System.out.println("Exiting the program...");
+				 System.out.println("Saving data before exit...");
+				 eqService.saveToFile();
+	             System.out.println("Exiting the program...");
 				break;
 			}
 			switch (option) {
@@ -442,8 +455,8 @@ public class ManagementEquipment {
 				}
 				break;
 			default:
-				System.out.println("Exiting the program...");
-			}
+	             System.out.println("Invalid option! Please try again.");
+	      	}
 			System.out.println();
 		} while (option != 8);
 
@@ -472,28 +485,27 @@ public class ManagementEquipment {
 	public static void printListEquipments(List<Equipment> equipments) {
 		System.out.println();
 		System.out.println(
-				"===========================================EQUIPMENTS LIST======================================================================");
+				"================================================================EQUIPMENTS LIST========================================================================================================");
 		System.out.println();
 		if (equipments.isEmpty()) {
 			System.out.println("No equipment registered yet.");
 		} else {
 			// Cabeçalho da tabela
-			System.out.printf("%-10s %-12s %-16s %-15s %-10s %-15s %-15s %-50s%n", "Type", "Model", "IP",
-					"Manufacturer", "State", "Energy(W)", "Consumption/Day(KWh)", "Specific Info");
-			System.out.println(
-					"---------------------------------------------------------------------------------------------------------------------------");
+			System.out.printf("%-10s %-25s %-18s %-15s %-10s %-12s %-22s %-50s%n",
+		            "Type", "Model", "IP", "Manufacturer", "State", "Energy(W)", "Consumption/Day(KWh)", "Specific Info");
+		    System.out.println("------------------------------------------------------------------------------------------------------------------------------------------------------------------------");
 
 			// lines of table
 			for (Equipment e : equipments) {
 				// Exibe uma linha formatada
-				System.out.printf("%-10s %-12s %-16s %-15s %-10s %-15.2f %20d %-50s%n", e.getType(), e.getModel(),
+				System.out.printf("%-10s %-25s %-18s %-15s %-10s %-12.2f %-22d %-50s%n", e.getType(), e.getModel(),
 						e.getIp(), e.getManufacturer(), e.getState(), e.getEnergyConsumption(),
 						e.getQtdHourConsumption(), e.getDetails());
 			}
 		}
 
 		System.out.println(
-				"-------------------------------------------------------------------------------------------------------------------------");
+				"--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------");
 	}
 
 	public static void clearScreen() {

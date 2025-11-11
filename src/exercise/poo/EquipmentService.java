@@ -1,7 +1,9 @@
 package exercise.poo;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -188,6 +190,7 @@ public class EquipmentService {
 		String type, model, ip, manufacturer, state, opSystem;
 		Double energyConsumption, portCapacityGB;
 		Boolean supportWifi, statefullPacketInspection, blockDoS;
+		
 		Equipment eq = null;
 
 		// Validate length of vector
@@ -278,13 +281,12 @@ public class EquipmentService {
 
 		    // === Validate supportWifi ===
 		    String answer = vetEquipment[7].trim().toLowerCase();
-		    if (isValidBoolean(answer)) {
-		        supportWifi = answer.equals("yes");
-		    } else {
-		        System.out.println("Line " + line + " ignored: Invalid option! Type 'yes' or 'no'.");
+		    if (!answer.equals("true") && !answer.equals("false")) {
+		        System.out.println("Line " + line + " ignored: Invalid boolean value.");
 		        return;
 		    }
-
+		    supportWifi = Boolean.parseBoolean(answer);
+		    
 		    // === Validate Mbps ===
 		    try {
 		        mbps = Integer.parseInt(vetEquipment[8]);
@@ -301,7 +303,7 @@ public class EquipmentService {
 		    eq = new Router(type, model, ip, manufacturer, state, energyConsumption, qtdHourConsumption, supportWifi, mbps);
 		    equipments.add(eq);
 		}
-
+  
 		else if (type.equalsIgnoreCase("Switch")) {
 			if (vetEquipment.length < 8) {
 				System.out.println("Line " + line + " ignored: missing fields for Switch.");
@@ -373,24 +375,66 @@ public class EquipmentService {
 			}
 			//validate statefullPacketInspection
 			String answer = vetEquipment[7].trim().toLowerCase();
-			  if (isValidBoolean(answer)) {
-				  statefullPacketInspection = answer.equals("yes");
-			    } else {
-			        System.out.println("Line " + line + " ignored: Invalid option! Type 'yes' or 'no'.");
+			if (!answer.equals("true") && !answer.equals("false")) {
+			        System.out.println("Line " + line + " ignored: Invalid boolean value.");
 			        return;
 			    }
+			  statefullPacketInspection = Boolean.parseBoolean(answer);
+			    
+			//validate blockDoS  
 			answer = vetEquipment[8].trim().toLowerCase();
-			//validate blockDoS
-			if (isValidBoolean(answer)) {
-				blockDoS = answer.equals("yes");
-			    } else {
-			        System.out.println("Line " + line + " ignored: Invalid option! Type 'yes' or 'no'.");
-			        return;
-			    }
+			if (!answer.equals("true") && !answer.equals("false")) {
+		        System.out.println("Line " + line + " ignored: Invalid boolean value.");
+		        return;
+		    }
+			blockDoS = Boolean.parseBoolean(answer);
+		    
 			eq = new Firewall(type, model, ip, manufacturer, state, energyConsumption, qtdHourConsumption,
 					statefullPacketInspection, blockDoS);
 			equipments.add(eq);
 		}
 	}
+	
+	public void saveToFile() {
+	    try (BufferedWriter bw = new BufferedWriter(new FileWriter("C:\\temp\\out\\equipments.csv", false))) {
+
+	        for (Equipment e : equipments) {
+	            String line = e.getType() + ";" +
+	                    e.getModel() + ";" +
+	                    e.getIp() + ";" +
+	                    e.getManufacturer() + ";" +
+	                    e.getState() + ";" +
+	                    e.getEnergyConsumption() + ";" +
+	                    e.getQtdHourConsumption();
+
+	            // specific fields by type
+	            if (e instanceof Router) {
+	                Router r = (Router) e;
+	                line += ";" + r.getSuportWifi() + ";" + r.getMbps();
+	            } 
+	            else if (e instanceof Switch) {
+	                Switch s = (Switch) e;
+	                line += ";" + s.getPortCapacityGB();
+	            } 
+	            else if (e instanceof Server) {
+	                Server s = (Server) e;
+	                line += ";" + s.getOpSystem() + ";" + s.getRamCapacity() + ";" + s.getDiskCapacity();
+	            } 
+	            else if (e instanceof Firewall) {
+	                Firewall f = (Firewall) e;
+	                line += ";" + f.isStatefullPacketInspection() + ";" + f.isBlockDoS();
+	            }
+
+	            bw.write(line);
+	            bw.newLine();
+	        }
+
+	        System.out.println("Equipments successfully saved to file.");
+
+	    } catch (IOException e) {
+	        System.out.println("Error: " + e.getMessage());
+	    }
+	}
+
 
 }
